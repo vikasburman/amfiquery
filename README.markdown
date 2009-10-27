@@ -3,12 +3,11 @@
 `amfiquery` is simple utility for anyone investing in Indian Mutual
 Funds, and who interested in tracking their Net Asset Values. 
 
-I am basically periodically reading and parsing
-<http://www.amfiindia.com/spages/NAV0.txt>, and providing an API to
-query the current price of any mutual fund you're interested in.
+It basically periodically reads and parses
+<http://www.amfiindia.com/spages/NAV0.txt>, and provides an API to query
+the current NAV of any mutual fund you're interested in.
 
-For now, I've implemented a very simple API to get the current NAV of a
-fund. Just hit the URL:
+Just hit the URL:
 
 <http://amfiquery.appspot.com/nav?code=105628>
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>amfiquery</title>
+<link rel="stylesheet" type="text/css" media="all" href="style.css"  />
+</head>
+
+<body>
+
+<h1>amfiquery</h1>
+
+<p><code>amfiquery</code> is simple utility for anyone investing in Indian Mutual
+Funds, and who interested in tracking their Net Asset Values. </p>
+
+<p>It basically periodically reads and parses
+<a href="http://www.amfiindia.com/spages/NAV0.txt">http://www.amfiindia.com/spages/NAV0.txt</a>, and provides an API to query
+the current NAV of any mutual fund you're interested in.</p>
+
+<p>Just hit the URL:</p>
+
+<p><a href="http://amfiquery.appspot.com/nav?code=105628">http://amfiquery.appspot.com/nav?code=105628</a></p>
+
+<p>to get the NAV of the fund with that scheme code. That URL is for <code>SBI
+MAGNUM TAXGAIN SCHEME 1993 - GROWTH</code>, for example.</p>
+
+<p>Todos:</p>
+
+<ul>
+<li>A simple method to get mutual fund meta-info that I'm storing (name,
+NAV, repurchase price, sale price, etc).</li>
+<li>A method to lookup/list mutual fund scheme codes.</li>
+<li>Maybe even capture historical information? Right now I'm just storing
+the latest available NAV.</li>
+</ul>
+
+<p>The application runs on the Google App Engine, and is open-source (under
+the GPL v3 license). I had created this application for my own personal
+use (and as a sort of experiment). Use it at your own risk. </p>
+
+<p>— Ankit Solanki
+  • <a href="http://ankitsolanki.com/">http://ankitsolanki.com/</a>
+  • <a href="http://simulacra.in">http://simulacra.in</a></p>
+
+</body>
+</html>
