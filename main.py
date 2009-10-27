@@ -6,13 +6,10 @@ from google.appengine.api.labs import taskqueue
 from models import MFInfo
 from google.appengine.ext import db
 
+
 class MainPage(webapp.RequestHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.out.write("""AMFI Mutual Fund current NAV Query
-Usage:
- - http://amfiquery.appspot.com/nav?code=108145 Get NAV of a fund
-        """)
+        self.redirect('/index.html')
 
 class NavHandler(webapp.RequestHandler):
     def get(self):
