@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.api import urlfetch
@@ -8,10 +10,15 @@ from google.appengine.ext import db
 
 
 class MainPage(webapp.RequestHandler):
+    """ Main page handler, redirect to index.html """
     def get(self):
         self.redirect('/index.html')
 
 class NavHandler(webapp.RequestHandler):
+    """ The handler that serves the NAV prices for each fund.
+    We just need to lookup the fund in the datastore, and output its
+    current NAV.
+    """
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
         code = self.request.get('code')
@@ -29,11 +36,17 @@ class NavHandler(webapp.RequestHandler):
 
         self.response.out.write(result[0].nav)
 
-
 def chunker(seq, size):
+    """ Utility method to split a list into chunks.
+    See: http://stackoverflow.com/questions/434287/what-is-the-most-pythonic-way-to-iterate-over-a-list-in-chunks/434328#434328"""
     return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
 
 class WorkerForNAV(webapp.RequestHandler):
+    """ The task queue handler. It received chunks of quotes (50 each).
+    It takes each quote individually, and stores/updates it in the
+    datastore.
+    """
+    
     def post(self):
         quotes = self.request.get('quote')
         for quote in quotes.split('\n'):
@@ -74,6 +87,13 @@ class WorkerForNAV(webapp.RequestHandler):
         
 
 class UpdateNAV(webapp.RequestHandler):
+    """ This is the handler called daily via a cron job.
+    We:
+      - Fetch http://www.amfiindia.com/spages/NAV0.txt
+      - Parse it
+      - Split it into chunks with 50 quotes each
+      - Put each chunk on the default task queue
+    """
     def get(self):
 
         url = 'http://www.amfiindia.com/spages/NAV0.txt'
@@ -92,11 +112,11 @@ class UpdateNAV(webapp.RequestHandler):
             
 
 application = webapp.WSGIApplication(
-                                     [('/', MainPage),
-                                      ('/nav', NavHandler),
-                                      ('/tasks/update', UpdateNAV),
-                                      ('/tasks/worker', WorkerForNAV)],
-                                     debug=True)
+    [('/', MainPage),                  # Home page
+     ('/nav', NavHandler),             # Handler for finding current NAV
+     ('/tasks/update', UpdateNAV),     # Cron job
+     ('/tasks/worker', WorkerForNAV)], # Task queue worker
+    debug=False)
 
 def main():
   run_wsgi_app(application)
