@@ -2,4 +2,4 @@ cron:
 - description: daily nav update job
   url: /tasks/update
   schedule: every day 00:00
-  timezone: IN
+  timezone: Asia/Kolkata
