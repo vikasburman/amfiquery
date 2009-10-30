@@ -1,4 +1,5 @@
 cron:
 - description: daily nav update job
   url: /tasks/update
-  schedule: every 24 hours
+  schedule: every day 00:00
+  timezone: IN
