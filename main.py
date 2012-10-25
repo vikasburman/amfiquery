@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.api import urlfetch
 
-from google.appengine.api.labs import taskqueue
+from google.appengine.api import taskqueue
 from models import MFInfo
 from google.appengine.ext import db
 
@@ -39,14 +40,14 @@ class NavHandler(webapp.RequestHandler):
 def chunker(seq, size):
     """ Utility method to split a list into chunks.
     See: http://stackoverflow.com/questions/434287/what-is-the-most-pythonic-way-to-iterate-over-a-list-in-chunks/434328#434328"""
-    return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
+    return [seq[pos:pos + size] for pos in xrange(0, len(seq), size)]
 
 class WorkerForNAV(webapp.RequestHandler):
     """ The task queue handler. It received chunks of quotes (50 each).
     It takes each quote individually, and stores/updates it in the
     datastore.
     """
-    
+
     def post(self):
         quotes = self.request.get('quote')
         for quote in quotes.split('\n'):
@@ -54,15 +55,16 @@ class WorkerForNAV(webapp.RequestHandler):
 
     def save_quote(self, quote):
         cols = quote.split(';')
-        if len(cols) != 6:
+        if len(cols) != 8:
+            logging.error("Quote is not in proper format: " + quote)
             return
 
         scheme_code = cols[0]
-        scheme_name = cols[1]
-        nav = cols[2]
-        repurchase_price = cols[3]
-        sale_price = cols[4]
-        date = cols[5]
+        scheme_name = cols[3]
+        nav = cols[4]
+        repurchase_price = cols[5]
+        sale_price = cols[6]
+        date = cols[7]
 
         query = db.GqlQuery('SELECT * FROM MFInfo WHERE scheme_code = :code', code=scheme_code)
         result = query.fetch(1)
@@ -74,7 +76,7 @@ class WorkerForNAV(webapp.RequestHandler):
                               repurchase_price = repurchase_price,
                               sale_price = sale_price,
                               date = date)
-                
+
         else:
             mf_quote = result[0]
             mf_quote.scheme_name = scheme_name
@@ -82,9 +84,9 @@ class WorkerForNAV(webapp.RequestHandler):
             mf_quote.repurchase_price = repurchase_price
             mf_quote.sale_price = sale_price
             mf_quote.date = date
-            
+
         mf_quote.put()
-        
+
 
 class UpdateNAV(webapp.RequestHandler):
     """ This is the handler called daily via a cron job.
@@ -97,8 +99,8 @@ class UpdateNAV(webapp.RequestHandler):
     def get(self):
 
         url = 'http://www.amfiindia.com/spages/NAV0.txt'
-        result = urlfetch.fetch(url)
-        
+        result = urlfetch.fetch(url, deadline=120)
+
         if result.status_code != 200:
             self.response.out.write('Error')
             return
@@ -108,8 +110,8 @@ class UpdateNAV(webapp.RequestHandler):
         quotes = [line for line in lines[1:] if line.find(';') != -1]
 
         for chunk in chunker(quotes, 50):
-            taskqueue.add(url='/tasks/worker', params={'quote': '\n'.join(chunk)})
-            
+          taskqueue.add(url='/tasks/worker', params={'quote': '\n'.join(chunk)})
+
 
 application = webapp.WSGIApplication(
     [('/', MainPage),                  # Home page
@@ -119,6 +121,7 @@ application = webapp.WSGIApplication(
     debug=False)
 
 def main():
+  logging.getLogger().setLevel(logging.DEBUG)
   run_wsgi_app(application)
 
 if __name__ == "__main__":
