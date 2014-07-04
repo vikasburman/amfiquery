@@ -91,14 +91,14 @@ class WorkerForNAV(webapp.RequestHandler):
 class UpdateNAV(webapp.RequestHandler):
     """ This is the handler called daily via a cron job.
     We:
-      - Fetch http://www.amfiindia.com/spages/NAV0.txt
+      - Fetch http://portal.amfiindia.com/spages/NAV0.txt
       - Parse it
       - Split it into chunks with 50 quotes each
       - Put each chunk on the default task queue
     """
     def get(self):
 
-        url = 'http://www.amfiindia.com/spages/NAV0.txt'
+        url = 'http://portal.amfiindia.com/spages/NAV0.txt'
         result = urlfetch.fetch(url, deadline=120)
 
         if result.status_code != 200:
